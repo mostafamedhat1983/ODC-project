@@ -1,0 +1,12 @@
+- name: install docker and run image
+  hosts: webservers
+  become: true
+  tasks:
+    - name: Install Docker & Run Image
+      shell: |
+        apt update
+        apt install docker.io -y
+        systemctl start docker
+        systemctl enable docker
+        docker pull mostafamedhat1/odc-image:latest
+        docker run -d -p 80:5000 mostafamedhat1/odc-image:latest
