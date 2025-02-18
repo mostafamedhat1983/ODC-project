@@ -11,6 +11,8 @@ This Jenkins pipeline automates the process of deploying a weather application. 
 7. Set up an AWS Load Balancer.
 8. Send an email notification upon success or failure.
 
+-Jenkins pipeline is configures to run from a private git hub repo, but this repo visibilty was changed to public for sake of visiblty and sharing
+
 ![Untitled Diagram drawio](https://github.com/user-attachments/assets/7533434b-260d-4224-9cb8-974051fd4413)
 
 ## Prerequisites
@@ -272,7 +274,7 @@ post {
 
 # Future enhancements to the pipeline and application
 1. replace aws cli commands with terrafrom IAC.
-2. create auto scaling group automatic scaling and management
+2. create auto scaling group for automatic scaling and management
 3. use https instead of http
 4. use aws aurora or any RDS database to store Previously Searched Cities as they are now localy stored in each EC2 instance which resultin data discrepancy
 
