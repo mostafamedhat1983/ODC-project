@@ -52,10 +52,11 @@ stage('Push Image to Docker Hub') {
 ```
 
 ### 3. Create AWS Security Group
-Creates a security group with name 'weather-app-SG' using saved credentialsId 'aws-key', and put the followin ports in the allowed inbond connections
-port 22 to allow ssh connection for remote access
-port 80 to allow http connections
-port 443 to allow https connections
+Creates a security group with name 'weather-app-SG' using saved credentialsId 'aws-key', and put the followin ports in the allowed inbond connections  
+port 22 to allow ssh connection for remote access  
+port 80 to allow http connections  
+port 443 to allow https connections  
+
 ```groovy
 stage('Create Security Group and Config its Ports') {
     steps {
