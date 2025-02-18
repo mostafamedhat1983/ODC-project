@@ -73,11 +73,11 @@ stage('Create Security Group and Config its Ports') {
 ```
 
 ### 4. Launch EC2 Instances
-Starts two EC2 instances for the application.
-Create 2 EC2 instances with names server1 ans server2 , in two different AZs.
-If you create the EC2 instance using security group name while specifying an avialability zone you will get error "The parameter groupName cannot be used with the parameter subnet"
-so you have to use security group ID instead, it is saved in varaible SG_ID 
-using saved credentialsId 'aws-key'
+Create 2 EC2 instances with names server1 ans server2 , in two different AZs.  
+If you create the EC2 instance using security group name while specifying an avialability zone you will get error "The parameter groupName cannot be used with the parameter subnet"  
+so you have to use security group ID instead, it is saved in varaible SG_ID   
+using saved credentialsId 'aws-key'  
+
 ```groovy
 stage('Create EC2 Instances') {
     steps {
@@ -95,10 +95,11 @@ stage('Create EC2 Instances') {
 ```
 
 ### 5. Create Ansible Inventory
-Generates an inventory file with instance IPs for Ansible automation.
-retrieve the ips of the 2 EC2 instances and then inject them into the ansible inventory file, the private key is already saved on the jenkins host in path /var/lib/jenkins, key owner is changed to jenkins .
-IPs are saved in varaibles EC2_IP1 and EC2_IP2
-using saved credentialsId 'aws-key'
+Generates an inventory file with instance IPs for Ansible automation.  
+retrieve the ips of the 2 EC2 instances and then inject them into the ansible inventory file, the private key is already saved on the jenkins host in path /var/lib/jenkins, key owner is changed to jenkins .  
+IPs are saved in varaibles EC2_IP1 and EC2_IP2  
+using saved credentialsId 'aws-key'  
+
 ```groovy
 stage('Create Ansible Inventory') {
     steps {
@@ -125,7 +126,7 @@ Wait for 60 seconds to make sure EC2 instances are up and accessible
 ```
 
 ### 7. Deploy with Ansible
-Runs an Ansible playbook to configure EC2 instances.
+Runs an Ansible playbook to configure EC2 instances.  
 first change key permission to 600 to restict access to it, then run the ansible playbook 'docker-install.yaml' file 
 ```groovy
 stage('Run Ansible Playbook') {
@@ -137,8 +138,8 @@ stage('Run Ansible Playbook') {
 ```
 
 This is the 'docker-install.yaml' file
-it installs docker, start docker service ,configure Docker to start automatically at boot, pulls theapp image from docker hub
-the run the image in the background and forward port 5000 from docker container to port 80 on host to eanble easier url access
+it installs docker, start docker service ,configure Docker to start automatically at boot, pulls theapp image from docker hub  
+then run the image in the background and forward port 5000 from docker container to port 80 on host to eanble easier url access
 ```groovy
 - name: install docker and run image
   hosts: webservers
