@@ -250,5 +250,26 @@ post {
 }
 ```
 
+# Screenshots
+### Created EC2 instances
+![ec2](https://github.com/user-attachments/assets/0cdb4404-6d46-4012-9821-70a816081309)
+
+### Created Security Group
+![security group](https://github.com/user-attachments/assets/7bfd510e-6ac6-4ae1-9f58-2c52f8f744c6)
+
+### Created target Group
+![target group](https://github.com/user-attachments/assets/05492a50-6efd-423b-a769-61c1f39d08e1)
+
+### Created load balancer
+![load balancer](https://github.com/user-attachments/assets/67672e07-403c-4a8c-8a28-0d1e9da14335)
+
+### Email recieved after pipeline finished
+![email](https://github.com/user-attachments/assets/2f0b5dd1-2543-4feb-aada-c64d0b550fd9)
+
+
+
+
+
+
 
 
