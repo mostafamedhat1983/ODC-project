@@ -11,9 +11,7 @@ This Jenkins pipeline automates the process of deploying a weather application. 
 7. Set up an AWS Load Balancer.
 8. Send an email notification upon success or failure.
 
-![Untitled Diagram drawio](https://github.com/user-attachments/assets/fe822b36-bbdb-4208-9594-486edacf258d)
-
-
+![Untitled Diagram drawio](https://github.com/user-attachments/assets/7533434b-260d-4224-9cb8-974051fd4413)
 
 ## Prerequisites
 Ensure the following credentials and resources are available:
