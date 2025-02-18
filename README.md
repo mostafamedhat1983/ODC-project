@@ -56,7 +56,7 @@ stage('Push Image to Docker Hub') {
 ```
 
 ### 3. Create AWS Security Group
-Creates a security group with name 'weather-app-SG' using saved credentialsId 'aws-key', and put the followin ports in the allowed inbond connections  
+Creates a security group with name 'weather-app-SG' using saved credentialsId 'aws-key', and put the following ports in the allowed inbound connections  
 port 22 to allow ssh connection for remote access  
 port 80 to allow http connections  
 port 443 to allow https connections ( if needed in the future ) 
@@ -77,7 +77,7 @@ stage('Create Security Group and Config its Ports') {
 ```
 
 ### 4. Launch EC2 Instances
-Create 2 EC2 instances with names server1 ans server2 , in two different AZs.  
+Create 2 EC2 instances with names server1 and server2 , in two different AZs.  
 If you create the EC2 instance using security group name while specifying an avialability zone you will get error   
 "The parameter groupName cannot be used with the parameter subnet"  
 so you have to use security group ID instead, it is saved in varaible SG_ID   
@@ -100,7 +100,7 @@ stage('Create EC2 Instances') {
 ```
 
 ### 5. Create Ansible Inventory
-Generates an inventory file with instance IPs for Ansible automation.  
+Generates an inventory file with EC2 instance IPs for Ansible automation.  
 retrieve the ips of the 2 EC2 instances and then inject them into the ansible inventory file, the private key is already saved on the jenkins host in path /var/lib/jenkins, key owner is changed to jenkins .  
 IPs are saved in varaibles EC2_IP1 and EC2_IP2  
 using saved credentialsId 'aws-key'  
@@ -143,7 +143,7 @@ stage('Run Ansible Playbook') {
 ```
 
 This is the 'docker-install.yaml' file
-it installs docker, start docker service ,configure Docker to start automatically at boot, pulls theapp image from docker hub  
+it installs docker, start docker service ,configure Docker to start automatically at boot, pulls the app image from docker hub  
 then run the image in the background and forward port 5000 from docker container to port 80 on host to eanble easier url access
 ```groovy
 - name: install docker and run image
@@ -203,7 +203,7 @@ Retrieve the target group ARN and save it in variable TG_ARN
          	--region=us-east-1 --output text )
 ```
 
-Register EC2 instances with IDS EC2_ID1 and EC2_ID2 to target group with ARN TG_ARN.   
+Register EC2 instances with IDs EC2_ID1 and EC2_ID2 to target group with ARN TG_ARN.   
 You have to use target group ARN to register targts ,you cant use its ID or name
 ```groovy
 		aws elbv2 register-targets \
