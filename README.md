@@ -57,7 +57,7 @@ stage('Push Image to Docker Hub') {
 Creates a security group with name 'weather-app-SG' using saved credentialsId 'aws-key', and put the followin ports in the allowed inbond connections  
 port 22 to allow ssh connection for remote access  
 port 80 to allow http connections  
-port 443 to allow https connections  
+port 443 to allow https connections ( if needed in the future ) 
 
 ```groovy
 stage('Create Security Group and Config its Ports') {
@@ -76,7 +76,8 @@ stage('Create Security Group and Config its Ports') {
 
 ### 4. Launch EC2 Instances
 Create 2 EC2 instances with names server1 ans server2 , in two different AZs.  
-If you create the EC2 instance using security group name while specifying an avialability zone you will get error "The parameter groupName cannot be used with the parameter subnet"  
+If you create the EC2 instance using security group name while specifying an avialability zone you will get error   
+"The parameter groupName cannot be used with the parameter subnet"  
 so you have to use security group ID instead, it is saved in varaible SG_ID   
 using saved credentialsId 'aws-key'  
 
@@ -129,7 +130,7 @@ Wait for 60 seconds to make sure EC2 instances are up and accessible
 
 ### 7. Deploy with Ansible
 Runs an Ansible playbook to configure EC2 instances.  
-first change key permission to 600 to restict access to it, then run the ansible playbook 'docker-install.yaml' file 
+first change key permission to 600 to restrict access to it, then run the ansible playbook 'docker-install.yaml' file 
 ```groovy
 stage('Run Ansible Playbook') {
     steps {
@@ -157,18 +158,84 @@ then run the image in the background and forward port 5000 from docker container
         docker run -d -p 80:5000 mostafamedhat1/odc-image:latest
 ```
 
-### 8. Create Load Balancer
-Configures an AWS Load Balancer to distribute traffic.
+### 8. Create target group ,assign EC2s to it . Create load balancer and listener
 
+Create a target group named 'weather-app-tg' , the targets in this target group will listen on port 80
 ```groovy
-stage('Create Load Balancer & Target Group') {
-    steps {
-        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aws-key', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-            sh 'aws elbv2 create-load-balancer --name Weather-app-LB --subnets subnet-03152cbc82cc6c076 subnet-0c79361b53646bed2 --security-groups $SG_ID --region=us-east-1'
-        }
-    }
-}
+stage('Create target group and assign EC2s to it ,create load balancer and listener  ') { 
+            steps {
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', 
+                    credentialsId: 'aws-key', usernameVariable: 'AWS_ACCESS_KEY_ID', 
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                sh '''
+		aws elbv2 create-target-group \
+    		--name weather-app-tg \
+    		--protocol HTTP \
+    		--port 80 \
+    		--vpc-id vpc-0803b8decccf63106 \
+    		--target-type instance \
+    		--health-check-protocol HTTP \
+    		--health-check-path / \
+    		--health-check-port 80 --region=us-east-1
 ```
+
+Retrieve the 2 EC2 instances IDs and save them in variables EC2_ID1 and EC2_ID2
+```groovy
+EC2_ID1=$(aws ec2 describe-instances \
+        --filters "Name=tag:Name,Values=server1" "Name=instance-state-name,Values=running" \
+        --query "Reservations[].Instances[].InstanceId" \
+        --region us-east-1 \
+        --output text )
+
+		EC2_ID2=$(aws ec2 describe-instances \
+        --filters "Name=tag:Name,Values=server2" "Name=instance-state-name,Values=running" \
+        --query "Reservations[].Instances[].InstanceId" \
+        --region us-east-1 \
+        --output text )
+```
+
+Retrieve the target group ARN and save it in variable TG_ARN
+```groovy
+		TG_ARN=$(aws elbv2 describe-target-groups \
+         	--names weather-app-tg --query 'TargetGroups[0].TargetGroupArn' \
+         	--region=us-east-1 --output text )
+```
+
+Register EC2 instances with IDS EC2_ID1 and EC2_ID2 to target group with ARN TG_ARN.   
+You have to use target group ARN to register targts ,you cant use its ID or name
+```groovy
+		aws elbv2 register-targets \
+        --target-group-arn $TG_ARN \
+        --region us-east-1 \
+        --targets Id=$EC2_ID1 Id=$EC2_ID2
+```
+
+Save the security group ID in variable SG_ID, and then create load balancer named 'Weather-app-LB' in two different AZs using this security group ID
+```groovy
+		SG_ID=$(aws ec2 describe-security-groups \
+                        --filters Name=group-name,Values=weather-app-SG \
+                        --query 'SecurityGroups[0].GroupId' --region=us-east-1 --output text)
+
+        aws elbv2 create-load-balancer \
+        --name Weather-app-LB \
+        --subnets subnet-03152cbc82cc6c076 subnet-0c79361b53646bed2 \
+        --security-groups $SG_ID --region=us-east-1
+```
+
+Save load balancer ARN in variable LB_ARN and use it to create a listener which will listen on port 80 and use the target group created before
+```groovy
+		 LB_ARN=$(aws elbv2 describe-load-balancers \
+        --names Weather-app-LB --query 'LoadBalancers[0].LoadBalancerArn' \
+        --output text --region=us-east-1)
+    
+        aws elbv2 create-listener \
+        --load-balancer-arn $LB_ARN\
+        --protocol HTTP \
+        --port 80 \
+        --default-actions Type=forward,TargetGroupArn=$TG_ARN \
+        --region us-east-1
+```
+
 
 ### 9. Email Notifications
 Sends an email with the success or failure of the pipeline.
