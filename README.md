@@ -266,6 +266,15 @@ post {
 ### Email recieved after pipeline finished
 ![email](https://github.com/user-attachments/assets/2f0b5dd1-2543-4feb-aada-c64d0b550fd9)
 
+### Weather app accessed from load balancer dns name
+![app](https://github.com/user-attachments/assets/7e7b8cb8-659b-4d75-bcbf-ebe6aecccdb5)
+
+
+# Future enhancements to the pipeline and application
+1. replace aws cli commands with terrafrom IAC.
+2. create auto scaling group automatic scaling and management
+3. use https instead of http
+4. use aws aurora or any RDS database to store Previously Searched Cities as they are now localy stored in each EC2 instance which resultin data discrepancy
 
 
 
